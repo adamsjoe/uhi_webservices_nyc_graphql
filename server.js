@@ -48,12 +48,26 @@ const RootQueryType = new GraphQLObjectType({
             type: new GraphQLList(graphAccidents.accidentType),
             description: 'Returns all boroughs in the dataset',
             resolve: async (parent, args) => {
-                console.log('getting boroughs')
+                console.log('Getting Boroughs')
                 let result = []
                 const boroughs = await dbModal.find().distinct('borough')
                 boroughs.forEach(borough => result.push({borough: borough}))
                 console.log(result)
                 return result
+            }
+        },
+        getMinDateEntry: {
+            type: new GraphQLList(graphAccidents.accidentType),
+            description: 'Returns the earliest recorded accident for a given borough',
+            args: {
+                borough: { type: GraphQLString },
+            },
+            resolve: async (parent, args) => {
+                console.log('getting min accident')
+                // not right
+                const allTimes = await dbModal.find({borough: args.borough}).sort().limit(1)
+                console.log(allTimes)
+                return allTimes.date
             }
         }
     })
