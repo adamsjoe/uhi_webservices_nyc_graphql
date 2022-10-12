@@ -12,7 +12,7 @@ app.use(express.urlencoded({extended: false}))
 
 const dbModal = require('./models/mongo')
 const graphAccidents = require('./models/graphql')
-const { aggregate } = require('./models/mongo')
+const { aggregate, db } = require('./models/mongo')
 
 mongoose.connect('mongodb+srv://testuser:ParkerDenver@nyc.tkufswb.mongodb.net/Collisions')
 
@@ -42,6 +42,18 @@ const RootQueryType = new GraphQLObjectType({
                 console.log(accidents)
 
                 return accidents
+            }
+        },
+        getAllBorough: {
+            type: new GraphQLList(graphAccidents.accidentType),
+            description: 'Returns all boroughs in the dataset',
+            resolve: async (parent, args) => {
+                console.log('getting boroughs')
+                let result = []
+                const boroughs = await dbModal.find().distinct('borough')
+                boroughs.forEach(borough => result.push({borough: borough}))
+                console.log(result)
+                return result
             }
         }
     })
